@@ -1,0 +1,43 @@
+FOTO DEI PIATTI
+===============
+
+Ogni foto prende il nome dal piatto: minuscolo, senza accenti, trattini al posto degli spazi.
+Se una foto manca, il piatto si vede semplicemente senza.
+
+  foto/<nome>.jpg       foto grande per la scheda del piatto (circa 960 px, sotto i 250 KB)
+  foto/mini/<nome>.jpg  copia piccola per l'elenco (circa 250 px). Se manca, si usa quella grande.
+
+Le foto attuali vengono da Wikimedia Commons: autori e licenze sono in crediti.html.
+Se ne sostituisci una con una tua, togli la sua riga da crediti.html.
+
+ANTIPASTI
+  tagliere-della-casa.jpg
+  burrata-e-pomodorini.jpg
+  polpette-al-sugo.jpg
+  peperoni-gratinati.jpg
+
+PRIMI
+  tagliatelle-al-ragu.jpg
+  cacio-e-pepe.jpg
+  risotto-ai-funghi-porcini.jpg
+  penne-all-arrabbiata.jpg
+
+SECONDI
+  tagliata-di-manzo.jpg
+  filetto-di-branzino.jpg
+  parmigiana-di-melanzane.jpg
+  pollo-alla-diavola.jpg
+
+PIZZE
+  margherita.jpg
+  diavola.jpg
+  ortolana.jpg
+  marinara.jpg
+
+DOLCI
+  tiramisu.jpg
+  panna-cotta.jpg
+  sorbetto-al-limone.jpg
+
+BEVANDE
+  (senza foto: nel menu hanno img: false)

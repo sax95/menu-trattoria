@@ -1,0 +1,780 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Menu — Trattoria da Peppe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f6f1e8;
+    --surface: #fffaf2;
+    --ink: #1f1a14;
+    --muted: #7a6e60;
+    --line: #e2d8c8;
+    --accent: #a8432a;
+    --accent-ink: #fff6ee;
+    --chip: #ece3d4;
+
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+    --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+    --serif: "Fraunces", Georgia, serif;
+    --sans: "Instrument Sans", system-ui, sans-serif;
+    --badge-ink: #5e5347;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #16130f;
+      --surface: #1f1b16;
+      --ink: #f1e9dc;
+      --muted: #a39684;
+      --line: #342d25;
+      --accent: #e07a5a;
+      --accent-ink: #1a0f0a;
+      --chip: #2a241d;
+      --badge-ink: #b9ac99;
+      color-scheme: dark;
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font: 400 15px/1.55 var(--sans);
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 0 20px; }
+
+  /* ---------- Header ---------- */
+  header.wrap { position: relative; padding-top: 56px; padding-bottom: 28px; text-align: center; }
+
+  /* ---------- Language switch ---------- */
+  .lang {
+    position: absolute; top: 12px; right: 20px;
+    display: grid; grid-template-columns: 1fr 1fr;
+    padding: 3px; border-radius: 999px; background: var(--chip);
+  }
+  .lang-thumb {
+    position: absolute; top: 3px; left: 3px; width: 40px; height: 30px;
+    border-radius: 999px; background: var(--ink);
+    transition: transform 260ms var(--ease-out);
+  }
+  .lang[data-lang="en"] .lang-thumb { transform: translateX(100%); }
+  .lang button {
+    position: relative; width: 40px; height: 30px; border-radius: 999px;
+    font: 600 12px/1 var(--sans); letter-spacing: .08em; color: var(--muted);
+    transition: color 150ms ease, transform 160ms var(--ease-out);
+  }
+  .lang button::after { content: ""; position: absolute; inset: -7px 0; } /* hit area ≥ 44px */
+  .lang button[aria-pressed="true"] { color: var(--bg); }
+  .lang button:active { transform: scale(0.95); }
+  .lang button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (hover: hover) and (pointer: fine) {
+    .lang button[aria-pressed="false"]:hover { color: var(--ink); }
+  }
+
+  /* Language swap: quick blurred dip so the text change reads as one transformation */
+  [data-fade] { transition: opacity 220ms ease, filter 220ms ease; }
+  .swapping [data-fade] { opacity: .2; filter: blur(2px); transition-duration: 110ms; }
+  .eyebrow {
+    font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted);
+  }
+  h1 {
+    font: 400 clamp(40px, 9vw, 64px)/1.02 var(--serif);
+    letter-spacing: -.02em; margin: 10px 0 12px;
+  }
+  h1 em { color: var(--accent); }
+  .meta { color: var(--muted); font-size: 14px; text-wrap: balance; }
+
+  /* ---------- Sticky nav ---------- */
+  .bar {
+    position: sticky; top: 0; z-index: 10;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: saturate(1.4) blur(12px);
+    -webkit-backdrop-filter: saturate(1.4) blur(12px);
+    border-bottom: 1px solid var(--line);
+  }
+  .tabs-scroll {
+    overflow-x: auto; scrollbar-width: none;
+    padding: 12px 20px 10px; margin: 0 auto; max-width: 720px;
+  }
+  .tabs-scroll::-webkit-scrollbar { display: none; }
+  /* Two identical tab lists stacked; the top one is "active" styled and clipped to the current tab. */
+  .tabs-inner { position: relative; width: max-content; }
+  .tabs { display: flex; gap: 4px; }
+  .tab {
+    padding: 10px 14px; border-radius: 999px; white-space: nowrap;
+    font-weight: 500; font-size: 14px; color: var(--muted);
+    transition: color 150ms ease, transform 160ms var(--ease-out);
+  }
+  .tab:active { transform: scale(0.97); }
+  @media (hover: hover) and (pointer: fine) {
+    .tabs:not(.tabs-active) .tab:hover { color: var(--ink); }
+  }
+  .tabs-active {
+    position: absolute; inset: 0; pointer-events: none;
+    clip-path: inset(0 100% 0 0 round 999px);
+    transition: clip-path 280ms var(--ease-out);
+  }
+  .tabs-active .tab { background: var(--ink); color: var(--bg); }
+
+  .filters {
+    display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
+    padding: 0 20px 12px; max-width: 720px; margin: 0 auto;
+  }
+  .filters::-webkit-scrollbar { display: none; }
+  /* Soft edge fade hints that the rows scroll sideways on narrow screens */
+  .tabs-scroll, .filters {
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 36px), transparent);
+            mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 36px), transparent);
+  }
+  @media (min-width: 720px) { .tabs-scroll, .filters { -webkit-mask-image: none; mask-image: none; } }
+  .chip {
+    position: relative; flex: none;
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 7px 12px; border-radius: 999px; font-size: 13px; font-weight: 500;
+    background: var(--chip); color: var(--muted);
+    border: 1px solid transparent;
+    transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease, transform 160ms var(--ease-out);
+  }
+  .chip:active { transform: scale(0.96); }
+  .chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+  .chip::after { content: ""; position: absolute; inset: -6px -3px; } /* hit area ≥ 44px */
+  /* Pressed state is shown by shape too (dot → check), not only by colour */
+  .chip .ico { display: grid; width: 12px; height: 12px; }
+  .chip .ico > * { grid-area: 1 / 1; transition: opacity 150ms ease, transform 200ms var(--ease-out); }
+  .chip .dot { width: 6px; height: 6px; margin: auto; border-radius: 50%; background: currentColor; opacity: .7; }
+  .chip .ck { opacity: 0; transform: scale(.6); }
+  .chip[aria-pressed="true"] .dot { opacity: 0; transform: scale(.6); }
+  .chip[aria-pressed="true"] .ck { opacity: 1; transform: none; }
+
+  /* ---------- Menu ---------- */
+  main.wrap { padding-top: 8px; padding-bottom: 80px; }
+  section { padding-top: 40px; scroll-margin-top: calc(var(--bar-h, 112px) - 16px); }
+  .sec-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 6px; }
+  h2 { font: 400 30px/1.1 var(--serif); letter-spacing: -.01em; }
+  .sec-head::after { content: ""; flex: 1; border-bottom: 1px solid var(--line); transform: translateY(-6px); }
+  .sec-note { color: var(--muted); font-size: 14px; font-style: italic; font-family: var(--serif); margin-bottom: 8px; }
+
+  .dish {
+    display: grid; grid-template-columns: 1fr auto; gap: 2px 16px;
+    width: 100%; text-align: left;
+    padding: 14px 12px; margin: 0 -12px; width: calc(100% + 24px);
+    border-radius: 12px;
+    transition: background-color 150ms ease, transform 160ms var(--ease-out),
+                opacity 300ms var(--ease-out), translate 300ms var(--ease-out);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .dish:hover { background: var(--surface); }
+  }
+  .dish:active { transform: scale(0.985); }
+  .dish:focus-visible, .tab:focus-visible, .chip:focus-visible, .close:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px;
+  }
+  .dish[hidden] { display: none; }
+  @starting-style {
+    .dish { opacity: 0; translate: 0 6px; }
+  }
+  .pick {
+    grid-column: 1 / 3; font: italic 400 13px/1.2 var(--serif); color: var(--accent);
+    display: flex; align-items: center; gap: 6px; margin-bottom: 3px;
+  }
+  .pick::before { content: ""; width: 14px; height: 1px; background: currentColor; }
+  .dish-name { font: 500 19px/1.25 var(--serif); letter-spacing: -.005em; display: flex; align-items: center; gap: 4px 8px; flex-wrap: wrap; }
+  .dish-price { font: 500 18px/1.3 var(--serif); font-variant-numeric: tabular-nums lining-nums; }
+  .dish-desc { grid-column: 1 / 3; color: var(--muted); font-size: 14px; max-width: 54ch; }
+
+  /* Dish photos: thumbnail on the right; space is reserved so nothing jumps when it loads */
+  .dish.has-img { grid-template-columns: 1fr auto 80px; }
+  .thumb {
+    grid-column: 3; grid-row: 1 / span 3; align-self: start;
+    width: 80px; height: 80px; border-radius: 12px; overflow: hidden;
+    background: var(--chip);
+  }
+  .thumb img, .hero img {
+    display: block; width: 100%; height: 100%; object-fit: cover;
+    opacity: 0; transition: opacity 300ms ease;
+  }
+  .thumb img.loaded, .hero img.loaded { opacity: 1; }
+  @media (min-width: 720px) {
+    .dish.has-img { grid-template-columns: 1fr auto 96px; }
+    .thumb { width: 96px; height: 96px; }
+  }
+  .badges { display: inline-flex; gap: 4px; }
+  .badge {
+    font: 600 10px/1 var(--sans); letter-spacing: .06em; text-transform: uppercase;
+    padding: 4px 6px; border-radius: 5px; background: var(--chip); color: var(--badge-ink);
+  }
+  .badge.hot { color: var(--accent); }
+  .empty { color: var(--muted); font-size: 14px; padding: 14px 0; font-style: italic; font-family: var(--serif); }
+  .empty button {
+    font: 500 13px var(--sans); font-style: normal; color: var(--accent);
+    text-decoration: underline; text-underline-offset: 3px; padding: 8px 4px; margin-left: 4px;
+  }
+
+  /* Page-load stagger (decorative, once) */
+  .reveal { animation: rise 500ms var(--ease-out) both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+
+  footer.wrap { text-align: center; color: var(--muted); font-size: 13px; padding-bottom: 48px; }
+  footer p + p { margin-top: 4px; }
+  footer a { color: inherit; text-underline-offset: 3px; display: inline-block; padding: 8px 4px; }
+
+  /* ---------- Detail sheet ---------- */
+  dialog {
+    border: 0; padding: 0; background: transparent; color: var(--ink);
+    max-width: none; max-height: none; width: 100%; height: 100%;
+    overflow: hidden;
+  }
+  dialog::backdrop { background: transparent; }
+  .scrim {
+    position: fixed; inset: 0; background: rgb(10 8 6 / .45);
+    opacity: 1; transition: opacity 300ms ease;
+  }
+  .sheet {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: var(--surface);
+    border-radius: 22px 22px 0 0;
+    padding: 10px 24px calc(28px + env(safe-area-inset-bottom));
+    max-height: 88vh; overflow-y: auto;
+    box-shadow: 0 -10px 40px rgb(0 0 0 / .18);
+    transform: translateY(0);
+    transition: transform 420ms var(--ease-drawer);
+    touch-action: pan-y;
+  }
+  dialog[data-state="closed"] .scrim { opacity: 0; }
+  dialog[data-state="closed"] .sheet { transform: translateY(100%); }
+  dialog[data-state="closing"] .scrim { opacity: 0; transition-duration: 200ms; }
+  dialog[data-state="closing"] .sheet { transform: translateY(100%); transition: transform 240ms var(--ease-out); }
+  .sheet.dragging { transition: none; }
+
+  .handle { display: block; width: 40px; height: 5px; border-radius: 9px; background: var(--line); margin: 0 auto 14px; }
+  .sheet-top { display: flex; justify-content: space-between; align-items: start; gap: 16px; }
+  .sheet .cat { font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+  .sheet h3 { font: 400 32px/1.1 var(--serif); letter-spacing: -.01em; margin: 6px 0 10px; }
+  /* Full-bleed photo at the top of the sheet; handle and close button float over it */
+  .hero { display: none; margin: 0 -24px 18px; aspect-ratio: 3 / 2; background: var(--chip); overflow: hidden; }
+  .sheet.has-img { padding-top: 0; }
+  .sheet.has-img .hero { display: block; }
+  .sheet.has-img .handle {
+    position: absolute; top: 8px; left: 50%; translate: -50% 0; margin: 0; z-index: 1;
+    background: rgb(255 255 255 / .8); box-shadow: 0 1px 4px rgb(0 0 0 / .25);
+  }
+  .sheet.has-img .close {
+    position: absolute; top: 14px; right: 14px; z-index: 1; color: #fff;
+    background: rgb(20 16 12 / .45);
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  }
+  .sheet .orig { font: italic 400 15px/1.3 var(--serif); color: var(--muted); margin: -4px 0 12px; }
+  .sheet .price { font: 400 24px/1 var(--serif); color: var(--accent); }
+  .sheet p.long { color: var(--ink); opacity: .85; margin: 8px 0 20px; }
+  .close {
+    width: 34px; height: 34px; border-radius: 50%; background: var(--chip); flex: none;
+    display: grid; place-items: center; transition: transform 160ms var(--ease-out);
+  }
+  .close:active { transform: scale(0.94); }
+  .info { border-top: 1px solid var(--line); padding-top: 14px; display: grid; gap: 12px; }
+  .info dt { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .info dd { font-size: 15px; }
+
+  /* Desktop: centered modal instead of bottom sheet */
+  @media (min-width: 720px) {
+    .sheet {
+      left: 50%; top: 50%; bottom: auto; right: auto; width: 520px;
+      border-radius: 20px; padding: 28px 32px 32px;
+      transform: translate(-50%, -50%);
+      transition: transform 220ms var(--ease-out), opacity 220ms var(--ease-out);
+      box-shadow: 0 24px 70px rgb(0 0 0 / .25);
+    }
+    .handle { display: none; }
+    .hero { margin: 0 -32px 22px; }
+    dialog[data-state="closed"] .sheet { transform: translate(-50%, -50%) scale(.96); opacity: 0; }
+    dialog[data-state="closing"] .sheet { transform: translate(-50%, -50%) scale(.97); opacity: 0; transition: transform 150ms var(--ease-out), opacity 150ms var(--ease-out); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { animation: fade 300ms ease both; }
+    @keyframes fade { from { opacity: 0; } }
+    @starting-style { .dish { translate: none; } }
+    .sheet, dialog[data-state] .sheet { transition: opacity 200ms ease !important; }
+    dialog[data-state="closed"] .sheet, dialog[data-state="closing"] .sheet { opacity: 0; transform: none; }
+    @media (min-width: 720px) {
+      dialog[data-state] .sheet { transform: translate(-50%, -50%) !important; }
+    }
+    .tabs-active, .lang-thumb { transition: none; }
+    .swapping [data-fade] { filter: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="wrap">
+  <div class="lang" id="lang" role="group" aria-label="Lingua · Language">
+    <span class="lang-thumb" aria-hidden="true"></span>
+    <button data-lang="it" lang="it" aria-pressed="true" aria-label="Italiano">IT</button>
+    <button data-lang="en" lang="en" aria-pressed="false" aria-label="English">EN</button>
+  </div>
+  <div class="eyebrow reveal" id="tEyebrow" data-fade></div>
+  <h1 class="reveal" style="animation-delay:60ms">Trattoria <em>da Peppe</em></h1>
+  <p class="meta reveal" style="animation-delay:120ms" id="tMeta" data-fade></p>
+</header>
+
+<div class="bar">
+  <div class="tabs-scroll" id="tabsScroll">
+    <div class="tabs-inner" data-fade>
+      <nav class="tabs" id="tabs"></nav>
+      <div class="tabs tabs-active" id="tabsActive" aria-hidden="true"></div>
+    </div>
+  </div>
+  <div class="filters" id="filters" role="group" data-fade></div>
+</div>
+
+<main class="wrap" id="menu" data-fade></main>
+
+<footer class="wrap" id="tFooter" data-fade></footer>
+
+<dialog id="dlg" data-state="closed" aria-labelledby="dName">
+  <div class="scrim" data-close></div>
+  <div class="sheet" id="sheet">
+    <span class="handle" aria-hidden="true"></span>
+    <div class="hero"><img id="dImg" alt="" decoding="async"></div>
+    <div class="sheet-top">
+      <div>
+        <div class="cat" id="dCat"></div>
+        <h3 id="dName"></h3>
+        <p class="orig" id="dOrig" lang="it" hidden></p>
+      </div>
+      <button class="close" data-close id="dClose">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 2l10 10M12 2L2 12"/></svg>
+      </button>
+    </div>
+    <div class="price" id="dPrice"></div>
+    <p class="long" id="dDesc"></p>
+    <dl class="info" id="dInfo"></dl>
+  </div>
+</dialog>
+
+<script>
+/* ================================================================
+   MODIFICA QUI IL TUO MENU
+   tags possibili: "veg" (vegetariano), "vegan", "gf" (senza glutine), "hot" (piccante)
+   chef: true  → mostra "Consigliato dallo chef" (usalo con parsimonia: uno per categoria al massimo)
+
+   INGLESE: ogni piatto/categoria può avere  en: { name, desc, allergens, pair, note }
+   Ogni campo mancante in "en" usa il testo italiano. I nomi tipici
+   (Tiramisù, Margherita, Cacio e pepe…) di solito restano in italiano.
+
+   FOTO: metti le foto nella cartella "foto/" chiamandole come il piatto,
+   in minuscolo, senza accenti e con i trattini al posto degli spazi:
+     "Tagliatelle al ragù"  → foto/tagliatelle-al-ragu.jpg
+     "Penne all'arrabbiata" → foto/penne-all-arrabbiata.jpg
+   Se la foto non c'è, il piatto si vede semplicemente senza.
+   Per usare un altro file: img: "foto/qualcosa.webp"  ·  per nessuna foto: img: false
+   ================================================================ */
+const MENU = [
+  { id: "antipasti", name: "Antipasti", note: "Per iniziare, da condividere",
+    en: { name: "Starters", note: "To begin, made for sharing" }, dishes: [
+    { name: "Tagliere della casa", chef: true, price: 16, desc: "Salumi locali, pecorino stagionato, giardiniera e gnocco fritto.", allergens: "Glutine, latte", pair: "Lambrusco di Sorbara",
+      en: { name: "House cured-meat board", desc: "Local cured meats, aged pecorino, pickled vegetables and fried dough.", allergens: "Gluten, milk" } },
+    { name: "Burrata e pomodorini", price: 12, desc: "Burrata pugliese, pomodorini confit, basilico e olio EVO.", tags: ["veg", "gf"], allergens: "Latte", pair: "Fiano di Avellino",
+      en: { name: "Burrata & cherry tomatoes", desc: "Apulian burrata, confit cherry tomatoes, basil and extra-virgin olive oil.", allergens: "Milk" } },
+    { name: "Polpette al sugo", price: 10, desc: "Polpette di manzo in salsa di pomodoro, crostone di pane.", allergens: "Glutine, uova, latte",
+      en: { name: "Meatballs in tomato sauce", desc: "Beef meatballs in tomato sauce, served with toasted bread.", allergens: "Gluten, eggs, milk" } },
+    { name: "Peperoni gratinati", price: 8, desc: "Peperoni al forno con pangrattato, capperi e acciughe.", tags: ["hot"], allergens: "Glutine, pesce",
+      en: { name: "Baked stuffed peppers", desc: "Oven-baked peppers with breadcrumbs, capers and anchovies.", allergens: "Gluten, fish" } },
+  ]},
+  { id: "primi", name: "Primi", note: "Pasta fresca tirata a mano ogni mattina",
+    en: { name: "Pasta & Risotto", note: "Fresh pasta, rolled by hand every morning" }, dishes: [
+    { name: "Tagliatelle al ragù", chef: true, price: 14, desc: "Ragù bianco e rosso cotto otto ore, Parmigiano 30 mesi.", allergens: "Glutine, uova, latte, sedano", pair: "Sangiovese di Romagna",
+      en: { desc: "Egg tagliatelle with a meat ragù slow-cooked for eight hours, 30-month Parmigiano.", allergens: "Gluten, eggs, milk, celery" } },
+    { name: "Cacio e pepe", price: 12, desc: "Tonnarelli, pecorino romano DOP e pepe nero tostato.", tags: ["veg"], allergens: "Glutine, latte",
+      en: { desc: "Tonnarelli pasta, Pecorino Romano PDO and toasted black pepper.", allergens: "Gluten, milk" } },
+    { name: "Risotto ai funghi porcini", price: 16, desc: "Carnaroli mantecato, porcini trifolati e timo.", tags: ["veg", "gf"], allergens: "Latte",
+      en: { name: "Porcini mushroom risotto", desc: "Creamy Carnaroli rice, sautéed porcini and thyme.", allergens: "Milk" } },
+    { name: "Penne all'arrabbiata", price: 11, desc: "Pomodoro San Marzano, aglio e peperoncino calabrese.", tags: ["vegan", "veg", "hot"], allergens: "Glutine",
+      en: { desc: "San Marzano tomato, garlic and Calabrian chilli.", allergens: "Gluten" } },
+  ]},
+  { id: "secondi", name: "Secondi", note: "Serviti con un contorno a scelta",
+    en: { name: "Mains", note: "Served with a side of your choice" }, dishes: [
+    { name: "Tagliata di manzo", price: 22, desc: "Controfiletto alla brace, rucola, grana e aceto balsamico.", tags: ["gf"], allergens: "Latte", pair: "Nero d'Avola",
+      en: { name: "Sliced grilled beef", desc: "Chargrilled sirloin, rocket, Grana cheese and balsamic vinegar.", allergens: "Milk" } },
+    { name: "Filetto di branzino", price: 20, desc: "In crosta di patate, con salsa al limone e capperi.", tags: ["gf"], allergens: "Pesce",
+      en: { name: "Sea bass fillet", desc: "Potato-crusted, with a lemon and caper sauce.", allergens: "Fish" } },
+    { name: "Parmigiana di melanzane", price: 14, desc: "Melanzane fritte, sugo, mozzarella fiordilatte e basilico.", tags: ["veg"], allergens: "Latte, glutine",
+      en: { name: "Aubergine parmigiana", desc: "Fried aubergine layered with tomato sauce, fior di latte mozzarella and basil.", allergens: "Milk, gluten" } },
+    { name: "Pollo alla diavola", price: 17, desc: "Mezzo galletto marinato al peperoncino, cotto al forno.", tags: ["gf", "hot"], allergens: "—",
+      en: { name: "Devilled chicken", desc: "Half a spring chicken marinated in chilli, roasted in the oven." } },
+  ]},
+  { id: "pizze", name: "Pizze", note: "Impasto a lunga lievitazione, forno a legna",
+    en: { name: "Pizza", note: "Slow-rise dough, wood-fired oven" }, dishes: [
+    { name: "Margherita", price: 8, desc: "Pomodoro, fiordilatte, basilico, olio EVO.", tags: ["veg"], allergens: "Glutine, latte",
+      en: { desc: "Tomato, fior di latte mozzarella, basil, extra-virgin olive oil.", allergens: "Gluten, milk" } },
+    { name: "Diavola", price: 10, desc: "Pomodoro, fiordilatte, salame piccante.", tags: ["hot"], allergens: "Glutine, latte",
+      en: { desc: "Tomato, fior di latte mozzarella, spicy salami.", allergens: "Gluten, milk" } },
+    { name: "Ortolana", price: 11, desc: "Fiordilatte, verdure grigliate di stagione, pomodorini.", tags: ["veg"], allergens: "Glutine, latte",
+      en: { desc: "Fior di latte mozzarella, grilled seasonal vegetables, cherry tomatoes.", allergens: "Gluten, milk" } },
+    { name: "Marinara", price: 7, desc: "Pomodoro, aglio, origano, olio EVO.", tags: ["vegan", "veg"], allergens: "Glutine",
+      en: { desc: "Tomato, garlic, oregano, extra-virgin olive oil. No cheese.", allergens: "Gluten" } },
+  ]},
+  { id: "dolci", name: "Dolci", note: "Fatti in casa",
+    en: { name: "Desserts", note: "Homemade" }, dishes: [
+    { name: "Tiramisù", chef: true, price: 7, desc: "Savoiardi, mascarpone, caffè espresso e cacao amaro.", tags: ["veg"], allergens: "Glutine, uova, latte", pair: "Marsala superiore",
+      en: { desc: "Ladyfingers, mascarpone, espresso and bitter cocoa.", allergens: "Gluten, eggs, milk" } },
+    { name: "Panna cotta", price: 6, desc: "Alla vaniglia, con coulis di frutti di bosco.", tags: ["veg", "gf"], allergens: "Latte",
+      en: { desc: "Vanilla panna cotta with a berry coulis.", allergens: "Milk" } },
+    { name: "Sorbetto al limone", price: 5, desc: "Limoni di Amalfi, servito in coppa.", tags: ["vegan", "veg", "gf"], allergens: "—",
+      en: { name: "Lemon sorbet", desc: "Made with Amalfi lemons, served in a glass." } },
+  ]},
+  { id: "bevande", name: "Bevande",
+    en: { name: "Drinks" }, dishes: [
+    { name: "Acqua naturale o frizzante", img: false, price: 2.5, desc: "Bottiglia da 75 cl.", tags: ["vegan", "veg", "gf"],
+      en: { name: "Still or sparkling water", desc: "75 cl bottle." } },
+    { name: "Vino della casa", img: false, price: 12, desc: "Rosso o bianco, caraffa da 1 litro.", tags: ["vegan", "veg", "gf"], allergens: "Solfiti",
+      en: { name: "House wine", desc: "Red or white, 1-litre carafe.", allergens: "Sulphites" } },
+    { name: "Birra artigianale", img: false, price: 6, desc: "Bionda non filtrata, 33 cl.", tags: ["vegan", "veg"], allergens: "Glutine",
+      en: { name: "Craft beer", desc: "Unfiltered lager, 33 cl.", allergens: "Gluten" } },
+    { name: "Caffè espresso", img: false, price: 1.5, desc: "Miscela 100% arabica.", tags: ["vegan", "veg", "gf"],
+      en: { name: "Espresso", desc: "100% Arabica blend." } },
+  ]},
+];
+
+/* Testi dell'interfaccia */
+const T = {
+  it: {
+    title: "Menu — Trattoria da Peppe",
+    eyebrow: "Cucina di stagione · dal 1987",
+    meta: "Via Roma 12 · Aperto a pranzo e cena · Coperto&nbsp;€&nbsp;2,50",
+    categories: "Categorie", filters: "Filtri",
+    filter: { veg: "Vegetariano", vegan: "Vegano", gf: "Senza glutine", hot: "Piccante" },
+    badge:  { veg: "Veg", vegan: "Vegano", gf: "No glutine", hot: "Piccante" },
+    chef: "Consigliato dallo chef",
+    empty: "Nessun piatto di questa sezione corrisponde ai filtri.", reset: "Rimuovi filtri",
+    features: "Caratteristiche", allergens: "Allergeni", askStaff: "Chiedi al personale",
+    pair: "Abbinamento consigliato", close: "Chiudi",
+    footer: ["Informa il personale di eventuali allergie o intolleranze.", "* Prodotto surgelato all'origine."],
+    credits: "Crediti delle foto",
+  },
+  en: {
+    title: "Menu — Trattoria da Peppe",
+    eyebrow: "Seasonal cooking · since 1987",
+    meta: "Via Roma 12 · Open for lunch and dinner · Cover charge&nbsp;€2.50",
+    categories: "Categories", filters: "Filters",
+    filter: { veg: "Vegetarian", vegan: "Vegan", gf: "Gluten-free", hot: "Spicy" },
+    badge:  { veg: "Veg", vegan: "Vegan", gf: "GF", hot: "Spicy" },
+    chef: "Chef's recommendation",
+    empty: "No dishes in this section match your filters.", reset: "Clear filters",
+    features: "Dietary", allergens: "Allergens", askStaff: "Please ask our staff",
+    pair: "Suggested pairing", close: "Close",
+    footer: ["Please tell our staff about any allergies or intolerances.", "* May contain frozen ingredients."],
+    credits: "Photo credits",
+  },
+};
+const FILTER_TAGS = ["veg", "vegan", "gf", "hot"];
+
+/* ================================================================ */
+
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch {} },
+};
+
+/* ---------- Language ---------- */
+function initialLang() {
+  const q = new URLSearchParams(location.search).get("lang");
+  if (q === "it" || q === "en") return q;
+  const saved = store.get("menu-lang");
+  if (saved === "it" || saved === "en") return saved;
+  return (navigator.language || "it").toLowerCase().startsWith("it") ? "it" : "en";
+}
+let lang = initialLang();
+const t = () => T[lang];
+const tr = (obj, key) => (lang === "en" && obj.en && obj.en[key]) || obj[key];
+const fmt = n => lang === "en"
+  ? "€" + n.toFixed(n % 1 ? 2 : 0)
+  : "€ " + n.toFixed(n % 1 ? 2 : 0).replace(".", ",");
+
+/* ---------- Photos ---------- */
+const slug = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+const imgSrc = d => d.img === false ? null : (d.img || `foto/${slug(d.name)}.jpg`);
+// Small copy for the list (foto/mini/…), full size only in the dish sheet
+const miniSrc = d => d.img ? d.img : `foto/mini/${slug(d.name)}.jpg`;
+const failedImgs = new Set(); // missing photos: don't retry them on re-render
+function thumbLoad(img) { img.classList.add("loaded"); }
+function thumbFail(img) {
+  const full = img.dataset.full;
+  if (img.getAttribute("src") !== full) { img.src = full; return; } // no mini → try the full photo
+  failedImgs.add(full);
+  img.closest(".dish").classList.remove("has-img");
+  img.parentElement.remove();
+}
+
+/* ---------- Render ---------- */
+let tabs = [], sections = [];
+const activeTags = new Set();
+
+function badges(tags = []) {
+  const shown = tags.filter(x => !(x === "veg" && tags.includes("vegan")));
+  return shown.length ? `<span class="badges">${shown.map(x => `<span class="badge ${x === "hot" ? "hot" : ""}">${t().badge[x]}</span>`).join("")}</span>` : "";
+}
+
+function render({ first = false } = {}) {
+  const L = t();
+  document.documentElement.lang = lang;
+  document.title = L.title;
+  $("#tEyebrow").textContent = L.eyebrow;
+  $("#tMeta").innerHTML = L.meta;
+  $("#tFooter").innerHTML = L.footer.map(p => `<p>${esc(p)}</p>`).join("")
+    + `<p><a href="crediti.html">${L.credits}</a></p>`;
+  $("#tabs").setAttribute("aria-label", L.categories);
+  $("#filters").setAttribute("aria-label", L.filters);
+  $("#dClose").setAttribute("aria-label", L.close);
+
+  const lang_ = $("#lang");
+  lang_.dataset.lang = lang;
+  lang_.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.dataset.lang === lang));
+
+  const tabsHTML = MENU.map(c => `<button class="tab" data-target="${c.id}">${esc(tr(c, "name"))}</button>`).join("");
+  $("#tabs").innerHTML = tabsHTML;
+  $("#tabsActive").innerHTML = tabsHTML.replaceAll("<button", '<button tabindex="-1"');
+  tabs = [...document.querySelectorAll("#tabs .tab")];
+
+  $("#filters").innerHTML = FILTER_TAGS.map(tag =>
+    `<button class="chip" aria-pressed="${activeTags.has(tag)}" data-tag="${tag}"><span class="ico" aria-hidden="true"><span class="dot"></span><svg class="ck" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.2l2.3 2.3 4.7-5"/></svg></span>${L.filter[tag]}</button>`).join("");
+
+  $("#menu").innerHTML = MENU.map((c, ci) => `
+    <section id="${c.id}" ${first ? `class="reveal" style="animation-delay:${180 + ci * 50}ms"` : ""}>
+      <div class="sec-head"><h2>${esc(tr(c, "name"))}</h2></div>
+      ${tr(c, "note") ? `<p class="sec-note">${esc(tr(c, "note"))}</p>` : ""}
+      ${c.dishes.map((d, di) => `
+        <button class="dish ${imgSrc(d) && !failedImgs.has(imgSrc(d)) ? "has-img" : ""}" data-c="${ci}" data-d="${di}" data-tags="${(d.tags || []).join(" ")}">
+          ${imgSrc(d) && !failedImgs.has(imgSrc(d)) ? `<span class="thumb"><img src="${esc(miniSrc(d))}" data-full="${esc(imgSrc(d))}" alt="" loading="lazy" decoding="async" width="96" height="96" onload="thumbLoad(this)" onerror="thumbFail(this)"></span>` : ""}
+          ${d.chef ? `<span class="pick">${L.chef}</span>` : ""}
+          <span class="dish-name">${esc(tr(d, "name"))}${badges(d.tags)}</span>
+          <span class="dish-price">${fmt(d.price)}</span>
+          <span class="dish-desc">${esc(tr(d, "desc"))}</span>
+        </button>`).join("")}
+      <p class="empty" hidden>${L.empty}<button data-reset>${L.reset}</button></p>
+    </section>`).join("");
+  sections = MENU.map(c => document.getElementById(c.id));
+  applyFilters();
+}
+
+function setLang(next) {
+  if (next === lang) return;
+  store.set("menu-lang", next);
+  const swap = () => {
+    // keep the reader on the same section while text lengths change
+    const anchor = document.getElementById(activeId);
+    const before = anchor ? anchor.getBoundingClientRect().top : 0;
+    lang = next;
+    render();
+    syncBar();
+    const after = document.getElementById(activeId);
+    if (anchor && after && scrollY > 0) window.scrollBy(0, after.getBoundingClientRect().top - before);
+    const id = activeId; activeId = null; setActive(id, { instant: true });
+    document.body.classList.remove("swapping");
+  };
+  if (reduce()) return swap();
+  document.body.classList.add("swapping");
+  setTimeout(swap, 110);
+}
+$("#lang").addEventListener("click", e => {
+  const b = e.target.closest("button[data-lang]");
+  if (b) setLang(b.dataset.lang);
+});
+
+/* ---------- Tabs: clip-path indicator ---------- */
+const scroller = $("#tabsScroll");
+const reduce = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+let activeId = null;
+
+function setActive(id, { instant = false } = {}) {
+  if (id === activeId) return;
+  activeId = id;
+  const tab = tabs.find(x => x.dataset.target === id);
+  if (!tab) return;
+  tabs.forEach(x => x.toggleAttribute("aria-current", x === tab));
+  const inner = tab.parentElement.offsetWidth;
+  const left = tab.offsetLeft, right = inner - left - tab.offsetWidth;
+  const active = $("#tabsActive");
+  if (instant) active.style.transition = "none";
+  active.style.clipPath = `inset(0 ${right}px 0 ${left}px round 999px)`;
+  if (instant) { active.offsetWidth; active.style.transition = ""; }
+  // keep active tab visible in horizontal scroller
+  const pad = 20;
+  if (left < scroller.scrollLeft + pad || left + tab.offsetWidth > scroller.scrollLeft + scroller.clientWidth - pad) {
+    scroller.scrollTo({ left: left - scroller.clientWidth / 2 + tab.offsetWidth / 2, behavior: instant ? "auto" : "smooth" });
+  }
+}
+
+let lockSpy = false, lockTimer;
+$("#tabs").addEventListener("click", e => {
+  const tab = e.target.closest(".tab");
+  if (!tab) return;
+  const id = tab.dataset.target;
+  setActive(id);
+  lockSpy = true;
+  clearTimeout(lockTimer);
+  const release = () => { lockSpy = false; window.removeEventListener("scrollend", release); };
+  window.addEventListener("scrollend", release);
+  lockTimer = setTimeout(release, 1200);
+  document.getElementById(id).scrollIntoView({ behavior: reduce() ? "auto" : "smooth" });
+});
+
+// Scroll spy: the section crossing a line just under the sticky bar is active.
+function spy() {
+  if (lockSpy) return;
+  const line = $(".bar").getBoundingClientRect().bottom + 72;
+  let current = sections[0];
+  for (const s of sections) if (!s.hidden && s.getBoundingClientRect().top <= line) current = s;
+  if (window.innerHeight + scrollY >= document.body.scrollHeight - 2) current = sections.filter(s => !s.hidden).at(-1) || current;
+  setActive(current.id);
+}
+
+/* ---------- Filters ---------- */
+$("#filters").addEventListener("click", e => {
+  const chip = e.target.closest(".chip");
+  if (!chip) return;
+  const tag = chip.dataset.tag;
+  activeTags.has(tag) ? activeTags.delete(tag) : activeTags.add(tag);
+  chip.setAttribute("aria-pressed", activeTags.has(tag));
+  applyFilters();
+});
+$("#menu").addEventListener("click", e => {
+  if (!e.target.closest("[data-reset]")) return;
+  activeTags.clear();
+  document.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", "false"));
+  applyFilters();
+});
+function applyFilters() {
+  sections.forEach(sec => {
+    let visible = 0;
+    sec.querySelectorAll(".dish").forEach(d => {
+      const tags = d.dataset.tags.split(" ");
+      const ok = [...activeTags].every(x => tags.includes(x));
+      d.hidden = !ok;
+      if (ok) visible++;
+    });
+    sec.querySelector(".empty").hidden = visible > 0;
+  });
+}
+
+/* ---------- Boot ---------- */
+render({ first: true });
+let raf;
+window.addEventListener("scroll", () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(spy); }, { passive: true });
+const syncBar = () => document.documentElement.style.setProperty("--bar-h", $(".bar").offsetHeight + "px");
+syncBar();
+window.addEventListener("resize", () => { syncBar(); const id = activeId; activeId = null; setActive(id, { instant: true }); });
+document.fonts.ready.then(() => { activeId = null; spy(); });
+setActive(MENU[0].id, { instant: true });
+
+/* ---------- Detail sheet ---------- */
+const dlg = $("#dlg"), sheet = $("#sheet");
+
+$("#menu").addEventListener("click", e => {
+  const btn = e.target.closest(".dish");
+  if (!btn) return;
+  const L = t();
+  const cat = MENU[btn.dataset.c], d = cat.dishes[btn.dataset.d];
+  $("#dCat").textContent = tr(cat, "name");
+  $("#dName").textContent = tr(d, "name");
+  // In English, show the Italian name too: it's what the waiter knows
+  const orig = $("#dOrig");
+  orig.hidden = tr(d, "name") === d.name;
+  orig.textContent = d.name;
+  const src = imgSrc(d), img = $("#dImg");
+  img.classList.remove("loaded");
+  img.alt = tr(d, "name");
+  if (src && !failedImgs.has(src)) {
+    sheet.classList.add("has-img");
+    img.onload = () => img.classList.add("loaded");
+    img.onerror = () => { failedImgs.add(src); sheet.classList.remove("has-img"); };
+    img.src = src;
+    if (img.complete && img.naturalWidth) img.classList.add("loaded");
+  } else {
+    sheet.classList.remove("has-img");
+    img.removeAttribute("src");
+  }
+  $("#dPrice").textContent = fmt(d.price);
+  $("#dDesc").textContent = tr(d, "desc");
+  const rows = [];
+  if (d.tags?.length) rows.push([L.features, d.tags.filter(x => !(x === "veg" && d.tags.includes("vegan"))).map(x => L.filter[x]).join(" · ")]);
+  rows.push([L.allergens, tr(d, "allergens") || L.askStaff]);
+  if (d.pair) rows.push([L.pair, tr(d, "pair")]);
+  $("#dInfo").innerHTML = rows.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("");
+  openSheet();
+});
+
+function openSheet() {
+  sheet.style.transform = "";
+  dlg.dataset.state = "closed";
+  dlg.showModal();
+  sheet.scrollTop = 0;
+  requestAnimationFrame(() => requestAnimationFrame(() => dlg.dataset.state = "open"));
+}
+function closeSheet() {
+  if (dlg.dataset.state !== "open") return;
+  dlg.dataset.state = "closing";
+  const done = () => { dlg.close(); dlg.dataset.state = "closed"; sheet.style.transform = ""; };
+  if (reduce()) return setTimeout(done, 200);
+  let finished = false;
+  const end = e => { if (e && e.target !== sheet) return; if (finished) return; finished = true; sheet.removeEventListener("transitionend", end); done(); };
+  sheet.addEventListener("transitionend", end);
+  setTimeout(end, 320);
+}
+dlg.addEventListener("click", e => { if (e.target.closest("[data-close]")) closeSheet(); });
+dlg.addEventListener("cancel", e => { e.preventDefault(); closeSheet(); });
+
+/* Drag down to dismiss (mobile bottom sheet only) — velocity-aware, with damping when pulling up. */
+let drag = null;
+sheet.addEventListener("pointerdown", e => {
+  if (innerWidth >= 720 || drag || e.button !== 0) return;
+  if (sheet.scrollTop > 0 && !e.target.closest(".handle")) return;
+  if (e.target.closest("button")) return;
+  drag = { id: e.pointerId, y0: e.clientY, t0: performance.now(), dy: 0, started: false };
+});
+sheet.addEventListener("pointermove", e => {
+  if (!drag || e.pointerId !== drag.id) return;
+  let dy = e.clientY - drag.y0;
+  if (!drag.started) {
+    if (Math.abs(dy) < 6) return;
+    drag.started = true;
+    sheet.setPointerCapture(e.pointerId);
+    sheet.classList.add("dragging");
+  }
+  if (dy < 0) dy = -Math.sqrt(-dy) * 2; // friction instead of a hard stop
+  drag.dy = dy;
+  sheet.style.transform = `translateY(${dy}px)`;
+});
+function endDrag(e) {
+  if (!drag || e.pointerId !== drag.id) return;
+  const { dy, t0, started } = drag;
+  drag = null;
+  if (!started) return;
+  sheet.classList.remove("dragging");
+  const velocity = Math.abs(dy) / (performance.now() - t0);
+  sheet.style.transform = "";
+  if (dy > 0 && (dy > sheet.offsetHeight * 0.3 || velocity > 0.11)) {
+    sheet.style.transform = `translateY(${dy}px)`;
+    sheet.offsetHeight;
+    sheet.style.transform = "";
+    closeSheet();
+  }
+}
+sheet.addEventListener("pointerup", endDrag);
+sheet.addEventListener("pointercancel", endDrag);
+</script>
+</body>
+</html>
