@@ -1,0 +1,340 @@
+/* ================================================================
+   Menu digitale — stili
+   1. Colori e variabili      6. Piatti e foto
+   2. Base                    7. Piè di pagina
+   3. Intestazione            8. Scheda del piatto
+   4. Selettore lingua        9. Animazioni e movimento ridotto
+   5. Barra categorie/filtri 10. Pagina crediti
+   ================================================================ */
+
+/* ---------- 1. Colori e variabili ---------- */
+:root {
+  /* Un solo tema chiaro, verde salvia (niente tema scuro, per scelta) */
+  --bg: #eef2ea;
+  --surface: #f8faf5;
+  --ink: #1f3328;
+  --muted: #55665b;
+  --line: #d3dccd;
+  --chip: #dfe7d8;
+  --badge-ink: #3f5246;
+  --accent: #b82e1a;
+  --accent-ink: #ffffff;
+  --scrim: rgb(18 38 28 / .42);
+
+  --serif: "Fraunces", Georgia, serif;
+  --sans: "Instrument Sans", system-ui, sans-serif;
+
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);    /* entrate e risposte al tocco */
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1); /* scheda dal basso, stile iOS */
+
+  color-scheme: light;
+}
+
+/* ---------- 2. Base ---------- */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font: 400 15px/1.55 var(--sans);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+.wrap { max-width: 720px; margin: 0 auto; padding: 0 20px; }
+
+:is(.dish, .tab, .chip, .close, .lang button):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---------- 3. Intestazione ---------- */
+header.wrap { position: relative; padding-top: 56px; padding-bottom: 28px; text-align: center; }
+.eyebrow { font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
+h1 {
+  font: 400 clamp(40px, 9vw, 64px)/1.02 var(--serif);
+  letter-spacing: -.02em;
+  margin: 10px 0 12px;
+}
+h1 em { color: var(--accent); }
+.meta { color: var(--muted); font-size: 14px; text-wrap: balance; }
+
+/* ---------- 4. Selettore lingua ---------- */
+.lang {
+  position: absolute; top: 12px; right: 20px;
+  display: grid; grid-template-columns: 1fr 1fr;
+  padding: 3px; border-radius: 999px; background: var(--chip);
+}
+.lang-thumb {
+  position: absolute; top: 3px; left: 3px; width: 40px; height: 30px;
+  border-radius: 999px; background: var(--ink);
+  transition: transform 260ms var(--ease-out);
+}
+.lang[data-lang="en"] .lang-thumb { transform: translateX(100%); }
+.lang button {
+  position: relative; width: 40px; height: 30px; border-radius: 999px;
+  font: 600 12px/1 var(--sans); letter-spacing: .08em; color: var(--muted);
+  transition: color 150ms ease, transform 160ms var(--ease-out);
+}
+.lang button::after { content: ""; position: absolute; inset: -7px 0; } /* area di tocco ≥ 44px */
+.lang button[aria-pressed="true"] { color: var(--bg); }
+.lang button:active { transform: scale(0.95); }
+
+/* ---------- 5. Barra categorie e filtri ---------- */
+.bar {
+  position: sticky; top: 0; z-index: 10;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  -webkit-backdrop-filter: saturate(1.4) blur(12px);
+          backdrop-filter: saturate(1.4) blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+
+.tabs-scroll,
+.filters {
+  max-width: 720px; margin: 0 auto;
+  overflow-x: auto; scrollbar-width: none;
+  /* sfumatura sui bordi: fa capire che la riga scorre di lato */
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 36px), transparent);
+          mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 36px), transparent);
+}
+.tabs-scroll::-webkit-scrollbar,
+.filters::-webkit-scrollbar { display: none; }
+.tabs-scroll { padding: 12px 20px 10px; }
+
+/* Due liste identiche sovrapposte: quella sopra è "attiva" e ritagliata sulla categoria corrente */
+.tabs-inner { position: relative; width: max-content; }
+.tabs { display: flex; gap: 4px; }
+.tab {
+  padding: 10px 14px; border-radius: 999px; white-space: nowrap;
+  font-weight: 500; font-size: 14px; color: var(--muted);
+  transition: color 150ms ease, transform 160ms var(--ease-out);
+}
+.tab:active { transform: scale(0.97); }
+.tabs-active {
+  position: absolute; inset: 0; pointer-events: none;
+  clip-path: inset(0 100% 0 0 round 999px);
+  transition: clip-path 280ms var(--ease-out);
+}
+.tabs-active .tab { background: var(--ink); color: var(--bg); }
+
+.filters { display: flex; gap: 6px; padding: 0 20px 12px; }
+.chip {
+  position: relative; flex: none;
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 7px 12px; border-radius: 999px;
+  font-size: 13px; font-weight: 500;
+  background: var(--chip); color: var(--muted);
+  transition: background-color 150ms ease, color 150ms ease, transform 160ms var(--ease-out);
+}
+.chip::after { content: ""; position: absolute; inset: -6px -3px; } /* area di tocco ≥ 44px */
+.chip:active { transform: scale(0.96); }
+.chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+/* Il filtro attivo si riconosce anche dalla forma (pallino → spunta), non solo dal colore */
+.chip .ico { display: grid; width: 12px; height: 12px; }
+.chip .ico > * { grid-area: 1 / 1; transition: opacity 150ms ease, transform 200ms var(--ease-out); }
+.chip .dot { width: 6px; height: 6px; margin: auto; border-radius: 50%; background: currentColor; opacity: .7; }
+.chip .ck,
+.chip[aria-pressed="true"] .dot { opacity: 0; transform: scale(.6); }
+.chip[aria-pressed="true"] .ck { opacity: 1; transform: none; }
+
+@media (hover: hover) and (pointer: fine) {
+  .tabs:not(.tabs-active) .tab:hover,
+  .lang button[aria-pressed="false"]:hover { color: var(--ink); }
+}
+
+/* ---------- 6. Piatti e foto ---------- */
+main.wrap { padding-top: 8px; padding-bottom: 80px; }
+section { padding-top: 40px; scroll-margin-top: calc(var(--bar-h, 112px) - 16px); }
+.sec-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 6px; }
+.sec-head::after { content: ""; flex: 1; border-bottom: 1px solid var(--line); transform: translateY(-6px); }
+h2 { font: 400 30px/1.1 var(--serif); letter-spacing: -.01em; }
+.sec-note { color: var(--muted); font: italic 400 14px/1.5 var(--serif); margin-bottom: 8px; }
+
+.dish {
+  display: grid; grid-template-columns: 1fr auto; gap: 2px 16px;
+  width: calc(100% + 24px); margin: 0 -12px; padding: 14px 12px;
+  border-radius: 12px; text-align: left;
+  transition: background-color 150ms ease, transform 160ms var(--ease-out),
+              opacity 300ms var(--ease-out), translate 300ms var(--ease-out);
+}
+.dish:active { transform: scale(0.985); }
+.dish[hidden] { display: none; }
+@starting-style { .dish { opacity: 0; translate: 0 6px; } } /* ricompare in dissolvenza dopo un filtro */
+@media (hover: hover) and (pointer: fine) {
+  .dish:hover { background: var(--surface); }
+}
+
+.pick {
+  grid-column: 1 / 3;
+  display: flex; align-items: center; gap: 6px; margin-bottom: 3px;
+  font: italic 400 13px/1.2 var(--serif); color: var(--accent);
+}
+.pick::before { content: ""; width: 14px; height: 1px; background: currentColor; }
+.dish-name {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 4px 8px;
+  font: 500 19px/1.25 var(--serif); letter-spacing: -.005em;
+}
+.dish-price { font: 500 18px/1.3 var(--serif); font-variant-numeric: tabular-nums lining-nums; }
+.dish-desc { grid-column: 1 / 3; max-width: 54ch; color: var(--muted); font-size: 14px; }
+
+.badges { display: inline-flex; gap: 4px; }
+.badge {
+  padding: 4px 6px; border-radius: 5px;
+  font: 600 10px/1 var(--sans); letter-spacing: .06em; text-transform: uppercase;
+  background: var(--chip); color: var(--badge-ink);
+}
+.badge.hot { color: var(--accent); }
+
+/* Miniatura a destra: lo spazio è riservato, così la pagina non salta mentre carica */
+.dish.has-img { grid-template-columns: 1fr auto 80px; }
+.thumb {
+  grid-column: 3; grid-row: 1 / span 3; align-self: start;
+  width: 80px; height: 80px; border-radius: 12px; overflow: hidden;
+  background: var(--chip);
+}
+.thumb img,
+.hero img {
+  display: block; width: 100%; height: 100%; object-fit: cover;
+  opacity: 0; transition: opacity 300ms ease;
+}
+.thumb img.loaded,
+.hero img.loaded { opacity: 1; }
+
+.empty { padding: 14px 0; color: var(--muted); font: italic 400 14px/1.5 var(--serif); }
+.empty button {
+  margin-left: 4px; padding: 8px 4px;
+  font: 500 13px var(--sans); color: var(--accent);
+  text-decoration: underline; text-underline-offset: 3px;
+}
+
+/* ---------- 7. Piè di pagina ---------- */
+footer.wrap { padding-bottom: 48px; text-align: center; color: var(--muted); font-size: 13px; }
+footer p + p { margin-top: 4px; }
+footer a { display: inline-block; padding: 8px 4px; color: inherit; text-underline-offset: 3px; }
+
+/* ---------- 8. Scheda del piatto ---------- */
+dialog {
+  width: 100%; height: 100%; max-width: none; max-height: none;
+  border: 0; padding: 0; overflow: hidden;
+  background: transparent; color: var(--ink);
+}
+dialog::backdrop { background: transparent; }
+.scrim {
+  position: fixed; inset: 0;
+  background: var(--scrim);
+  transition: opacity 300ms ease;
+}
+
+/* Telefono: scheda che sale dal basso */
+.sheet {
+  position: fixed; left: 0; right: 0; bottom: 0;
+  max-height: 88vh; overflow-y: auto;
+  padding: 10px 24px calc(28px + env(safe-area-inset-bottom));
+  border-radius: 22px 22px 0 0;
+  background: var(--surface);
+  box-shadow: 0 -10px 40px rgb(0 0 0 / .18);
+  transition: transform 420ms var(--ease-drawer);
+  touch-action: pan-y;
+}
+.sheet.dragging { transition: none; }
+dialog[data-state="closed"] .scrim,
+dialog[data-state="closing"] .scrim { opacity: 0; }
+dialog[data-state="closing"] .scrim { transition-duration: 200ms; }
+dialog[data-state="closed"] .sheet { transform: translateY(100%); }
+dialog[data-state="closing"] .sheet { transform: translateY(100%); transition: transform 240ms var(--ease-out); }
+
+.handle { display: block; width: 40px; height: 5px; margin: 0 auto 14px; border-radius: 9px; background: var(--line); }
+.sheet-top { display: flex; justify-content: space-between; align-items: start; gap: 16px; }
+.sheet .cat { font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+.sheet h3 { margin: 6px 0 10px; font: 400 32px/1.1 var(--serif); letter-spacing: -.01em; }
+.sheet .orig { margin: -4px 0 12px; font: italic 400 15px/1.3 var(--serif); color: var(--muted); }
+.sheet .price { font: 400 24px/1 var(--serif); color: var(--accent); }
+.sheet .long { margin: 8px 0 20px; color: var(--ink); opacity: .85; }
+.close {
+  flex: none; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--chip);
+  transition: transform 160ms var(--ease-out);
+}
+.close:active { transform: scale(0.94); }
+.info { display: grid; gap: 12px; padding-top: 14px; border-top: 1px solid var(--line); }
+.info dt { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.info dd { font-size: 15px; }
+
+/* Foto a tutta larghezza in cima; maniglia e pulsante di chiusura ci stanno sopra */
+.hero { display: none; aspect-ratio: 3 / 2; margin: 0 -24px 18px; overflow: hidden; background: var(--chip); }
+.sheet.has-img { padding-top: 0; }
+.sheet.has-img .hero { display: block; }
+.sheet.has-img .handle {
+  position: absolute; top: 8px; left: 50%; translate: -50% 0; z-index: 1; margin: 0;
+  background: rgb(255 255 255 / .8);
+  box-shadow: 0 1px 4px rgb(0 0 0 / .25);
+}
+.sheet.has-img .close {
+  position: absolute; top: 14px; right: 14px; z-index: 1;
+  color: #fff; background: rgb(18 38 28 / .5);
+  -webkit-backdrop-filter: blur(8px);
+          backdrop-filter: blur(8px);
+}
+
+/* ---------- Schermi larghi ---------- */
+@media (min-width: 720px) {
+  .tabs-scroll, .filters { -webkit-mask-image: none; mask-image: none; }
+
+  .dish.has-img { grid-template-columns: 1fr auto 96px; }
+  .thumb { width: 96px; height: 96px; }
+
+  /* La scheda diventa un modale centrato */
+  .sheet {
+    left: 50%; top: 50%; right: auto; bottom: auto; width: 520px;
+    padding: 28px 32px 32px; border-radius: 20px;
+    transform: translate(-50%, -50%);
+    transition: transform 220ms var(--ease-out), opacity 220ms var(--ease-out);
+    box-shadow: 0 24px 70px rgb(0 0 0 / .25);
+  }
+  .handle { display: none; }
+  .hero { margin: 0 -32px 22px; }
+  dialog[data-state="closed"] .sheet { transform: translate(-50%, -50%) scale(.96); opacity: 0; }
+  dialog[data-state="closing"] .sheet {
+    transform: translate(-50%, -50%) scale(.97); opacity: 0;
+    transition: transform 150ms var(--ease-out), opacity 150ms var(--ease-out);
+  }
+}
+
+/* ---------- 9. Animazioni ---------- */
+/* Comparsa a cascata all'apertura della pagina (una sola volta) */
+.reveal { animation: rise 500ms var(--ease-out) both; }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+
+/* Cambio lingua: breve dissolvenza sfocata, il testo sembra trasformarsi invece di scambiarsi */
+[data-fade] { transition: opacity 220ms ease, filter 220ms ease; }
+.swapping [data-fade] { opacity: .2; filter: blur(2px); transition-duration: 110ms; }
+
+/* Movimento ridotto: restano solo le dissolvenze */
+@media (prefers-reduced-motion: reduce) {
+  .reveal { animation: fade 300ms ease both; }
+  @keyframes fade { from { opacity: 0; } }
+  @starting-style { .dish { translate: none; } }
+  .tabs-active, .lang-thumb { transition: none; }
+  .swapping [data-fade] { filter: none; }
+
+  .sheet, dialog[data-state] .sheet { transition: opacity 200ms ease !important; }
+  dialog[data-state="closed"] .sheet,
+  dialog[data-state="closing"] .sheet { opacity: 0; transform: none; }
+  @media (min-width: 720px) {
+    dialog[data-state] .sheet { transform: translate(-50%, -50%) !important; }
+  }
+}
+
+/* ---------- 10. Pagina crediti ---------- */
+.credits { padding-top: 40px; padding-bottom: 64px; }
+.credits .back { display: inline-block; padding: 8px 0; color: var(--muted); font-size: 14px; text-decoration: none; }
+.credits .back:hover { color: var(--ink); }
+.credits h1 { margin: 16px 0 10px; font-size: clamp(32px, 7vw, 44px); line-height: 1.1; letter-spacing: -.01em; }
+.credits .lead { max-width: 60ch; margin-bottom: 24px; color: var(--muted); }
+.credits ul { list-style: none; border-top: 1px solid var(--line); }
+.credits li { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.credits li img { flex: none; border-radius: 10px; object-fit: cover; background: var(--chip); }
+.credits li b { display: block; font: 500 17px/1.3 var(--serif); }
+.credits li span { color: var(--muted); font-size: 13.5px; }
+.credits a { color: var(--accent); text-underline-offset: 3px; }

@@ -1,6 +1,6 @@
 # Menu digitale — Trattoria da Peppe
 
-Menu web per ristoranti: un solo file `index.html`, senza dipendenze né build.
+Menu web per ristoranti in HTML, CSS e JavaScript puri: niente librerie, niente build.
 
 - Categorie con navigazione che segue lo scorrimento
 - Filtri: vegetariano, vegano, senza glutine, piccante
@@ -8,10 +8,24 @@ Menu web per ristoranti: un solo file `index.html`, senza dipendenze né build.
 - Italiano / inglese (lingua scelta in automatico, oppure `?lang=en`)
 - Tema chiaro e scuro, pensato prima di tutto per il telefono
 
+## Struttura
+
+```
+index.html      struttura della pagina
+crediti.html    autori e licenze delle foto
+css/style.css   tutti gli stili (colori in cima, sezione :root)
+js/menu.js      ← DATI: piatti, prezzi, allergeni, traduzioni
+js/app.js       funzionamento della pagina
+foto/           foto grandi (960 px) per la scheda del piatto
+foto/mini/      foto piccole (250 px) per l'elenco
+```
+
 ## Modificare il menu
 
-Apri `index.html` e cerca **MODIFICA QUI IL TUO MENU**: piatti, prezzi, allergeni
-e traduzioni sono tutti nell'array `MENU`. I testi dell'interfaccia sono nell'oggetto `T`.
+Per cambiare piatti, prezzi, allergeni o traduzioni basta modificare **`js/menu.js`**:
+le istruzioni sono in cima al file. I testi dell'interfaccia (filtri, pulsanti,
+piè di pagina) sono nell'oggetto `T` nello stesso file.
+I colori si cambiano in cima a `css/style.css`.
 
 ## Foto
 
